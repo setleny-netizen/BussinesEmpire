@@ -633,6 +633,8 @@
         </div>
         <div class="ach-list" id="achList"></div>
       </div>
+      <div class="divider"></div>
+<button class="work-btn" id="resetBtn" style="margin-top: 10px; background: radial-gradient(circle at top, #ef4444, #b91c1c);">СБРОСИТЬ ВСЁ</button>
     </div>
 
     <div class="footer">Прогресс сохраняется локально в браузере.</div>
@@ -1436,6 +1438,14 @@ function loadState() {
     setInterval(tickIncome, 1000);
     // каждые 5 сек — движение акций
     setInterval(updateStocksPrices, 5000);
+
+    // ---------- СБРОС ----------
+    document.getElementById("resetBtn").addEventListener("click", () => {
+  if (confirm("Точно сбросить весь прогресс?")) {
+    localStorage.removeItem(SAVE_KEY);
+    location.reload();
+  }
+});
   </script>
 </body>
 </html>
