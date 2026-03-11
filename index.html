@@ -1292,76 +1292,95 @@
     // ---------- SAVE / LOAD ----------
     const SAVE_KEY = "business_empire_html_save_v1";
 
-    function saveState() {
-      const data = {
-        money,
-        clickPower,
-        totalEarned,
-        totalSpent,
-        totalClicks,
-        businesses,
-        stocks,
-        luxuries,
-        achievements,
-      };
-      try {
-        localStorage.setItem(SAVE_KEY, JSON.stringify(data));
-      } catch (e) {
-        // если localStorage недоступен — просто пропускаем
-      }
+function saveState() {
+  const data = {
+    money,
+    clickPower,
+    totalEarned,
+    totalSpent,
+    totalClicks,
+    businesses,
+    stocks,
+    luxuries,
+    achievements,
+    lastSaveTime: Math.floor(Date.now() / 1000), // <-- ДОБАВЛЕНО
+  };
+  try {
+    localStorage.setItem(SAVE_KEY, JSON.stringify(data));
+  } catch (e) {
+    // если localStorage недоступен — просто пропускаем
+  }
+}
+
+function loadState() {
+  try {
+    const raw = localStorage.getItem(SAVE_KEY);
+    if (!raw) return;
+    const data = JSON.parse(raw);
+    money = data.money ?? money;
+    clickPower = data.clickPower ?? clickPower;
+    totalEarned = data.totalEarned ?? totalEarned;
+    totalSpent = data.totalSpent ?? totalSpent;
+    totalClicks = data.totalClicks ?? totalClicks;
+
+    if (Array.isArray(data.businesses)) {
+      data.businesses.forEach((bData) => {
+        const b = businesses.find((x) => x.id === bData.id);
+        if (!b) return;
+        b.cost = bData.cost ?? b.cost;
+        b.baseIncome = bData.baseIncome ?? b.baseIncome;
+        b.owned = bData.owned ?? b.owned;
+        b.multiplier = bData.multiplier ?? b.multiplier;
+      });
     }
 
-    function loadState() {
-      try {
-        const raw = localStorage.getItem(SAVE_KEY);
-        if (!raw) return;
-        const data = JSON.parse(raw);
-        money = data.money ?? money;
-        clickPower = data.clickPower ?? clickPower;
-        totalEarned = data.totalEarned ?? totalEarned;
-        totalSpent = data.totalSpent ?? totalSpent;
-        totalClicks = data.totalClicks ?? totalClicks;
+    if (Array.isArray(data.stocks)) {
+      data.stocks.forEach((sData) => {
+        const s = stocks.find((x) => x.id === sData.id);
+        if (!s) return;
+        s.price = sData.price ?? s.price;
+        s.owned = sData.owned ?? s.owned;
+        s.avgPrice = sData.avgPrice ?? s.avgPrice;
+      });
+    }
 
-        if (Array.isArray(data.businesses)) {
-          data.businesses.forEach((bData) => {
-            const b = businesses.find((x) => x.id === bData.id);
-            if (!b) return;
-            b.cost = bData.cost ?? b.cost;
-            b.baseIncome = bData.baseIncome ?? b.baseIncome;
-            b.owned = bData.owned ?? b.owned;
-            b.multiplier = bData.multiplier ?? b.multiplier;
-          });
-        }
+    if (Array.isArray(data.luxuries)) {
+      data.luxuries.forEach((lData) => {
+        const l = luxuries.find((x) => x.id === lData.id);
+        if (!l) return;
+        l.owned = lData.owned ?? l.owned;
+      });
+    }
 
-        if (Array.isArray(data.stocks)) {
-          data.stocks.forEach((sData) => {
-            const s = stocks.find((x) => x.id === sData.id);
-            if (!s) return;
-            s.price = sData.price ?? s.price;
-            s.owned = sData.owned ?? s.owned;
-            s.avgPrice = sData.avgPrice ?? s.avgPrice;
-          });
-        }
+    if (Array.isArray(data.achievements)) {
+      data.achievements.forEach((aData) => {
+        const a = achievements.find((x) => x.id === aData.id);
+        if (!a) return;
+        a.done = aData.done ?? a.done;
+      });
+    }
 
-        if (Array.isArray(data.luxuries)) {
-          data.luxuries.forEach((lData) => {
-            const l = luxuries.find((x) => x.id === lData.id);
-            if (!l) return;
-            l.owned = lData.owned ?? l.owned;
-          });
+    // ========== НОВЫЙ КОД: ОФФЛАЙН ПРОГРЕСС ==========
+    if (data.lastSaveTime) {
+      const now = Math.floor(Date.now() / 1000);
+      const secondsPassed = now - data.lastSaveTime;
+      // Не больше 1 дня (86400 секунд), чтобы не сломать игру
+      if (secondsPassed > 0 && secondsPassed < 86400) {
+        // Пересчитываем текущий доход перед начислением
+        incomePerSec = calcBizIncomePerSec();
+        const offlineIncome = incomePerSec * secondsPassed;
+        if (offlineIncome > 0) {
+          money += offlineIncome;
+          totalEarned += offlineIncome;
         }
-
-        if (Array.isArray(data.achievements)) {
-          data.achievements.forEach((aData) => {
-            const a = achievements.find((x) => x.id === aData.id);
-            if (!a) return;
-            a.done = aData.done ?? a.done;
-          });
-        }
-      } catch (e) {
-        console.error("Save load error", e);
       }
     }
+    // =================================================
+
+  } catch (e) {
+    console.error("Save load error", e);
+  }
+}
 
     // ---------- LOOP ----------
     function tickIncome() {
