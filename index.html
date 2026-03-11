@@ -1004,108 +1004,123 @@
       });
     }
 
-    function renderStocks() {
-      stockListEl.innerHTML = "";
-      stocks.forEach((s) => {
-        const row = document.createElement("div");
-        row.className = "card-row";
+function renderStocks() {
+  stockListEl.innerHTML = "";
+  stocks.forEach((s) => {
+    const row = document.createElement("div");
+    row.className = "card-row";
 
-        const main = document.createElement("div");
-        main.className = "card-row-main";
+    const main = document.createElement("div");
+    main.className = "card-row-main";
 
-        const label = document.createElement("div");
-        label.className = "label-main";
-        label.textContent = s.name + (s.owned > 0 ? ` ×${s.owned}` : "");
+    const label = document.createElement("div");
+    label.className = "label-main";
+    label.textContent = s.name + (s.owned > 0 ? ` ×${s.owned}` : "");
 
-        const sub = document.createElement("div");
-        sub.className = "label-sub";
-        sub.textContent = "Цена: " + fmtMoney(s.price);
+    const sub = document.createElement("div");
+    sub.className = "label-sub";
+    sub.textContent = "Цена: " + fmtMoney(s.price);
 
-        const tag = document.createElement("div");
-        tag.className = "label-tag";
-        tag.textContent =
-          s.owned > 0
-            ? "Средняя цена: " + fmtMoney(s.avgPrice)
-            : "Нет позиций";
+    const tag = document.createElement("div");
+    tag.className = "label-tag";
+    tag.textContent =
+      s.owned > 0
+        ? "Средняя цена: " + fmtMoney(s.avgPrice)
+        : "Нет позиций";
 
-        main.appendChild(label);
-        main.appendChild(sub);
-        main.appendChild(tag);
+    main.appendChild(label);
+    main.appendChild(sub);
+    main.appendChild(tag);
 
-        const actions = document.createElement("div");
-        actions.className = "card-row-actions";
+    const actions = document.createElement("div");
+    actions.className = "card-row-actions";
 
-        const value = s.owned * s.price;
-        const cost = s.owned * s.avgPrice;
-        let pl = value - cost;
-        let plPercent = cost > 0 ? (pl / cost) * 100 : 0;
-        if (!isFinite(plPercent)) plPercent = 0;
+    const value = s.owned * s.price;
+    const cost = s.owned * s.avgPrice;
+    let pl = value - cost;
+    let plPercent = cost > 0 ? (pl / cost) * 100 : 0;
+    if (!isFinite(plPercent)) plPercent = 0;
 
-        const pill = document.createElement("div");
-        pill.className =
-          "pill " +
-          (pl > 0 ? "positive" : pl < 0 ? "negative" : "");
-        pill.textContent =
-          (pl > 0 ? "+" : "") +
-          fmt(pl) +
-          " (" +
-          plPercent.toFixed(1) +
-          "%)";
+    const pill = document.createElement("div");
+    pill.className =
+      "pill " +
+      (pl > 0 ? "positive" : pl < 0 ? "negative" : "");
+    pill.textContent =
+      (pl > 0 ? "+" : "") +
+      fmt(pl) +
+      " (" +
+      plPercent.toFixed(1) +
+      "%)";
 
-        const btnBuy = document.createElement("button");
-        btnBuy.className = "small-btn outline";
-        btnBuy.textContent = "Купить";
+    const btnBuy = document.createElement("button");
+    btnBuy.className = "small-btn outline";
+    btnBuy.textContent = "Купить";
 
-        const btnSell = document.createElement("button");
-        btnSell.className = "small-btn outline";
-        btnSell.textContent = "Продать";
+    const btnSell = document.createElement("button");
+    btnSell.className = "small-btn outline";
+    btnSell.textContent = "Продать";
 
-        if (money < s.price) {
-          btnBuy.classList.add("disabled");
-        }
-
-        if (s.owned <= 0) {
-          btnSell.classList.add("disabled");
-        }
-
-        btnBuy.addEventListener("click", () => {
-          if (money < s.price) return;
-          money -= s.price;
-          totalSpent += s.price;
-          const totalCost = s.avgPrice * s.owned + s.price;
-          s.owned += 1;
-          s.avgPrice = totalCost / s.owned;
-          playClickSound(260, 0.06, 0.08);
-          checkAchievements();
-          saveState();
-          updateUI();
-        });
-
-        btnSell.addEventListener("click", () => {
-          if (s.owned <= 0) return;
-          s.owned -= 1;
-          money += s.price;
-          totalEarned += s.price;
-          if (s.owned === 0) s.avgPrice = 0;
-          playClickSound(180, 0.06, 0.08);
-          saveState();
-          updateUI();
-        });
-
-        actions.appendChild(pill);
-        const btnRow = document.createElement("div");
-        btnRow.style.display = "flex";
-        btnRow.style.gap = "4px";
-        btnRow.appendChild(btnBuy);
-        btnRow.appendChild(btnSell);
-        actions.appendChild(btnRow);
-
-        row.appendChild(main);
-        row.appendChild(actions);
-        stockListEl.appendChild(row);
-      });
+    if (money < s.price) {
+      btnBuy.classList.add("disabled");
     }
 
+    if (s.owned <= 0) {
+      btnSell.classList.add("disabled");
+    }
+
+    btnBuy.addEventListener("click", () => {
+      if (money < s.price) return;
+      
+      // Покупаем максимум возможного
+      const maxCanBuy = Math.floor(money / s.price);
+      if (maxCanBuy === 0) return;
+      
+      const totalCost = s.price * maxCanBuy;
+      money -= totalCost;
+      totalSpent += totalCost;
+      
+      // Пересчитываем среднюю цену
+      const totalShares = s.owned + maxCanBuy;
+      const totalValue = (s.avgPrice * s.owned) + (s.price * maxCanBuy);
+      s.owned = totalShares;
+      s.avgPrice = totalValue / totalShares;
+      
+      playClickSound(260, 0.06, 0.08);
+      checkAchievements();
+      saveState();
+      updateUI();
+    });
+
+    btnSell.addEventListener("click", () => {
+      if (s.owned <= 0) return;
+      
+      // Продаём всё
+      const totalValue = s.owned * s.price;
+      money += totalValue;
+      totalEarned += totalValue;
+      
+      s.owned = 0;
+      s.avgPrice = 0;
+      
+      playClickSound(180, 0.06, 0.08);
+      checkAchievements();
+      saveState();
+      updateUI();
+    });
+
+    actions.appendChild(pill);
+    const btnRow = document.createElement("div");
+    btnRow.style.display = "flex";
+    btnRow.style.gap = "4px";
+    btnRow.appendChild(btnBuy);
+    btnRow.appendChild(btnSell);
+    actions.appendChild(btnRow);
+
+    row.appendChild(main);
+    row.appendChild(actions);
+    stockListEl.appendChild(row);
+  });
+}
     function renderLuxuries() {
       luxListEl.innerHTML = "";
       let ownedCount = 0;
