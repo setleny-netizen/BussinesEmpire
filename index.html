@@ -886,9 +886,6 @@
     }
 
     function getStatusByNetWorth(nw) {
-      if (nw >= 1_000_000_000_000_000_000) return "Owner";
-      if (nw >= 1_000_000_000_000_000) return "Quadrillionaire";
-      if (nw >= 1_000_000_000_000) return "Trillionaire";
       if (nw >= 100_000_000) return "Billionaire";
       if (nw >= 5_000_000) return "Tycoon";
       if (nw >= 1_000_000) return "Millionaire";
