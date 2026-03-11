@@ -1407,7 +1407,7 @@ function loadState() {
       updateUI();
     }
 
-    // ---------- EVENTS ----------
+        // ---------- EVENTS ----------
     workBtn.addEventListener("click", () => {
       money += clickPower;
       totalEarned += clickPower;
@@ -1429,6 +1429,14 @@ function loadState() {
       });
     });
 
+    // ---------- СБРОС (ПРАВИЛЬНОЕ МЕСТО) ----------
+    document.getElementById("resetBtn").addEventListener("click", () => {
+      if (confirm("Точно сбросить весь прогресс?")) {
+        localStorage.removeItem(SAVE_KEY);
+        location.reload();
+      }
+    });
+
     // ---------- INIT ----------
     loadState();
     updateUI();
@@ -1437,14 +1445,6 @@ function loadState() {
     setInterval(tickIncome, 1000);
     // каждые 5 сек — движение акций
     setInterval(updateStocksPrices, 5000);
-
-    // ---------- СБРОС ----------
-    document.getElementById("resetBtn").addEventListener("click", () => {
-  if (confirm("Точно сбросить весь прогресс?")) {
-    localStorage.removeItem(SAVE_KEY);
-    location.reload();
-  }
-});
   </script>
 </body>
 </html>
