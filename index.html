@@ -489,11 +489,11 @@
       <div class="income-row">
         <div>
           Доход:
-          <span class="income-highlight" id="incomePerSec">0 $/sec</span>
+          <span class="income-highlight" id="incomePerSec">0 $/сек</span>
         </div>
         <div>
           В час:
-          <span class="income-hour" id="incomePerHour">0 $/hr</span>
+          <span class="income-hour" id="incomePerHour">0 $/час</span>
         </div>
       </div>
 
@@ -948,7 +948,7 @@
         const sub = document.createElement("div");
         sub.className = "label-sub";
         sub.textContent =
-          "+" + fmt(b.baseIncome * b.multiplier) + " $/sec / шт.";
+          "+" + fmt(b.baseIncome * b.multiplier) + " $/сек / шт.";
 
         const tag = document.createElement("div");
         tag.className = "label-tag";
@@ -971,7 +971,7 @@
         const info = document.createElement("div");
         info.className = "stat-chip";
         info.textContent =
-          "Доход: " + fmt(incomePerBiz || 0) + " $/hr";
+          "Доход: " + fmt(incomePerBiz || 0) + " $/час";
 
         const btn = document.createElement("button");
         btn.className = "small-btn primary";
