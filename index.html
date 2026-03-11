@@ -658,7 +658,7 @@
 
     // ---------- GAME STATE ----------
     let money = 0;
-    let clickPower = 1;
+    let clickPower = 0;
     let incomePerSec = 0;
     let totalEarned = 0;
     let totalSpent = 0;
@@ -874,9 +874,11 @@
     // ---------- HELPERS ----------
     function fmt(n) {
       const v = Math.floor(Math.abs(n));
-      if (v >= 1_000_000_000) return (n / 1_000_000_000).toFixed(1) + "B";
-      if (v >= 1_000_000) return (n / 1_000_000).toFixed(1) + "M";
-      if (v >= 1_000) return (n / 1_000).toFixed(1) + "K";
+      if (v >= 1_000_000_000_000_000) return (n / 1_000_000_000_000_000).toFixed(1) + "квдрлн";
+      if (v >= 1_000_000_000_000) return (n / 1_000_000_000_000).toFixed(1) + "трлн";
+      if (v >= 1_000_000_000) return (n / 1_000_000_000).toFixed(1) + "млрд";
+      if (v >= 1_000_000) return (n / 1_000_000).toFixed(1) + "млн";
+      if (v >= 1_000) return (n / 1_000).toFixed(1) + "тыс";
       return Math.floor(n).toString();
     }
 
