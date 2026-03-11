@@ -1378,22 +1378,32 @@ function loadState() {
       });
     }
 
-    // ========== НОВЫЙ КОД: ОФФЛАЙН ПРОГРЕСС ==========
-    if (data.lastSaveTime) {
-      const now = Math.floor(Date.now() / 1000);
-      const secondsPassed = now - data.lastSaveTime;
-      // Не больше 1 дня (86400 секунд), чтобы не сломать игру
-      if (secondsPassed > 0 && secondsPassed < 86400) {
-        // Пересчитываем текущий доход перед начислением
-        incomePerSec = calcBizIncomePerSec();
-        const offlineIncome = incomePerSec * secondsPassed;
-        if (offlineIncome > 0) {
-          money += offlineIncome;
-          totalEarned += offlineIncome;
-        }
-      }
+// ========== НОВЫЙ КОД: ОФФЛАЙН ПРОГРЕСС + ЦЕНЫ АКЦИЙ ==========
+if (data.lastSaveTime) {
+  const now = Math.floor(Date.now() / 1000);
+  const secondsPassed = now - data.lastSaveTime;
+  if (secondsPassed > 0 && secondsPassed < 86400) {
+    // Доход от бизнесов
+    incomePerSec = calcBizIncomePerSec();
+    const offlineIncome = incomePerSec * secondsPassed;
+    if (offlineIncome > 0) {
+      money += offlineIncome;
+      totalEarned += offlineIncome;
     }
-    // =================================================
+    
+    // Обновление цен акций (каждые 5 секунд оффлайн)
+    const stockUpdates = Math.floor(secondsPassed / 5);
+    for (let i = 0; i < stockUpdates; i++) {
+      stocks.forEach((s) => {
+        const rnd = (Math.random() - 0.5) * 0.12;
+        const trend = s.baseTrend * 0.5;
+        const factor = 1 + rnd + trend;
+        s.price = Math.max(5, s.price * factor);
+      });
+    }
+  }
+}
+    ========================
 
   } catch (e) {
     console.error("Save load error", e);
