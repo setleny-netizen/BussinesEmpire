@@ -1,0 +1,1420 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <title>Business Empire</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+
+  <!-- Yandex Games SDK -->
+  <script src="https://yandex.ru/games/sdk/v2"></script>
+
+  <style>
+    :root {
+      --bg: #05070c;
+      --card: #111827;
+      --card-soft: #0b1120;
+      --accent: #f43f5e;
+      --accent-soft: #fb7185;
+      --accent-strong: #e11d48;
+      --gold: #facc15;
+      --text: #e5e7eb;
+      --muted: #9ca3af;
+      --muted-dark: #6b7280;
+      --border: #1f2937;
+      --positive: #22c55e;
+      --negative: #ef4444;
+      --tab-bg: #020617;
+      --tab-active: #111827;
+      --blue: #38bdf8;
+      --purple: #a855f7;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+        sans-serif;
+      background: radial-gradient(circle at top, #1f2937 0, #020617 55%);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: stretch;
+      padding: 8px;
+    }
+
+    #app {
+      max-width: 420px;
+      width: 100%;
+      margin: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .top-card {
+      background: linear-gradient(135deg, #020617, #0b1120);
+      border-radius: 20px;
+      padding: 14px 16px 12px;
+      box-shadow: 0 18px 40px rgba(0, 0, 0, 0.7);
+      border: 1px solid rgba(148, 163, 184, 0.25);
+    }
+
+    .top-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 4px;
+    }
+
+    .logo {
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      font-size: 11px;
+      text-transform: uppercase;
+      color: var(--accent-soft);
+    }
+
+    .badge {
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.5);
+      padding: 2px 8px;
+      font-size: 10px;
+      color: var(--muted);
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .badge-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--positive);
+    }
+
+    .balance-row {
+      display: flex;
+      align-items: baseline;
+      gap: 8px;
+      margin-top: 2px;
+    }
+
+    #balance {
+      font-size: 26px;
+      font-weight: 700;
+      color: var(--gold);
+    }
+
+    .net-worth {
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .income-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 8px;
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    .income-highlight {
+      color: var(--blue);
+      font-weight: 500;
+    }
+
+    .income-hour {
+      color: var(--purple);
+      font-weight: 500;
+    }
+
+    .work-btn {
+      margin-top: 10px;
+      width: 100%;
+      padding: 13px;
+      border-radius: 999px;
+      border: none;
+      background: radial-gradient(circle at top, var(--accent-soft), var(--accent-strong));
+      color: #f9fafb;
+      font-size: 15px;
+      font-weight: 700;
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
+      cursor: pointer;
+      box-shadow: 0 12px 24px rgba(248, 113, 113, 0.5);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .work-btn:active {
+      transform: translateY(1px) scale(0.98);
+      box-shadow: 0 8px 18px rgba(248, 113, 113, 0.35);
+    }
+
+    .tab-bar {
+      display: flex;
+      background: var(--tab-bg);
+      border-radius: 999px;
+      padding: 3px;
+      border: 1px solid var(--border);
+      gap: 3px;
+      margin-top: 4px;
+    }
+
+    .tab-btn {
+      flex: 1;
+      border-radius: 999px;
+      padding: 7px 4px;
+      font-size: 11px;
+      border: none;
+      background: transparent;
+      color: var(--muted);
+      font-weight: 500;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+    }
+
+    .tab-btn.active {
+      background: var(--tab-active);
+      color: #f9fafb;
+      box-shadow: 0 0 0 1px rgba(148, 163, 184, 0.2);
+    }
+
+    .tab-icon {
+      font-size: 13px;
+    }
+
+    .content-card {
+      background: var(--card-soft);
+      border-radius: 20px;
+      padding: 10px 10px 12px;
+      border: 1px solid var(--border);
+      box-shadow: 0 12px 32px rgba(15, 23, 42, 0.8);
+      flex: 1;
+      min-height: 260px;
+      overflow: hidden;
+    }
+
+    .section {
+      display: none;
+      height: 100%;
+      overflow-y: auto;
+      padding-right: 4px;
+    }
+
+    .section.active {
+      display: block;
+    }
+
+    .section-title {
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 6px;
+      color: #e5e7eb;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .section-sub {
+      font-size: 11px;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+
+    .biz-list,
+    .stock-list,
+    .lux-list,
+    .ach-list {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-top: 4px;
+      margin-bottom: 4px;
+    }
+
+    .card-row {
+      background: var(--card);
+      border-radius: 14px;
+      padding: 8px 10px;
+      border: 1px solid rgba(31, 41, 55, 0.9);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .card-row-main {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .label-main {
+      font-size: 13px;
+      font-weight: 600;
+      color: #e5e7eb;
+    }
+
+    .label-sub {
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    .label-tag {
+      font-size: 10px;
+      color: var(--muted-dark);
+    }
+
+    .chip {
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      padding: 2px 6px;
+      font-size: 10px;
+      color: var(--muted);
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+    }
+
+    .card-row-actions {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 4px;
+      min-width: 92px;
+    }
+
+    .small-btn {
+      padding: 4px 8px;
+      border-radius: 999px;
+      border: none;
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    .small-btn.primary {
+      background: var(--accent);
+      color: white;
+    }
+
+    .small-btn.disabled {
+      background: #111827;
+      color: var(--muted-dark);
+      cursor: default;
+      border: 1px solid #1f2937;
+    }
+
+    .small-btn.outline {
+      background: transparent;
+      border: 1px solid #374151;
+      color: var(--muted);
+    }
+
+    .pill {
+      border-radius: 999px;
+      padding: 3px 8px;
+      font-size: 10px;
+      border: 1px solid #1f2937;
+      color: var(--muted-dark);
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+    }
+
+    .pill.positive {
+      border-color: rgba(34, 197, 94, 0.4);
+      color: var(--positive);
+    }
+
+    .pill.negative {
+      border-color: rgba(239, 68, 68, 0.4);
+      color: var(--negative);
+    }
+
+    .status-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 4px;
+      margin-bottom: 4px;
+    }
+
+    .status-label {
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .status-value {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--gold);
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 6px;
+      margin-top: 4px;
+    }
+
+    .stat-card {
+      background: #020617;
+      border-radius: 14px;
+      padding: 8px 9px;
+      border: 1px solid #111827;
+    }
+
+    .stat-label {
+      font-size: 10px;
+      color: var(--muted);
+      margin-bottom: 2px;
+    }
+
+    .stat-value {
+      font-size: 13px;
+      font-weight: 600;
+      color: #e5e7eb;
+    }
+
+    .stat-chip {
+      font-size: 10px;
+      color: var(--muted-dark);
+      margin-top: 2px;
+    }
+
+    .ach-item {
+      background: var(--card);
+      border-radius: 12px;
+      padding: 7px 9px;
+      border: 1px solid #1f2937;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .ach-main {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .ach-name {
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .ach-desc {
+      font-size: 10px;
+      color: var(--muted);
+    }
+
+    .ach-badge {
+      font-size: 10px;
+      padding: 3px 7px;
+      border-radius: 999px;
+      border: 1px solid #1f2937;
+      color: var(--muted-dark);
+    }
+
+    .ach-badge.done {
+      border-color: rgba(34, 197, 94, 0.5);
+      color: var(--positive);
+    }
+
+    .tag-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      border-radius: 999px;
+      padding: 3px 7px;
+      font-size: 10px;
+      border: 1px solid #1f2937;
+      color: var(--muted);
+    }
+
+    .divider {
+      height: 1px;
+      background: #111827;
+      margin: 6px 0;
+    }
+
+    .footer {
+      margin-top: 4px;
+      font-size: 9px;
+      text-align: center;
+      color: var(--muted-dark);
+    }
+
+    /* Scrollbar (mobile виден редко, но всё же) */
+    .section::-webkit-scrollbar {
+      width: 4px;
+    }
+    .section::-webkit-scrollbar-thumb {
+      background-color: #1f2937;
+      border-radius: 999px;
+    }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <div class="top-card">
+      <div class="top-row">
+        <div class="logo">BUSINESS EMPIRE</div>
+        <div class="badge">
+          <div class="badge-dot"></div>
+          <span id="statusLabel">Rookie</span>
+        </div>
+      </div>
+
+      <div class="balance-row">
+        <div id="balance">$0</div>
+        <div class="net-worth">
+          NW: <span id="netWorth">$0</span>
+        </div>
+      </div>
+
+      <div class="income-row">
+        <div>
+          Доход:
+          <span class="income-highlight" id="incomePerSec">0 $/sec</span>
+        </div>
+        <div>
+          В час:
+          <span class="income-hour" id="incomePerHour">0 $/hr</span>
+        </div>
+      </div>
+
+      <button class="work-btn" id="workBtn">WORK +1$</button>
+    </div>
+
+    <div class="tab-bar">
+      <button class="tab-btn active" data-tab="business">
+        <span class="tab-icon">🏢</span>
+        <span>Business</span>
+      </button>
+      <button class="tab-btn" data-tab="stocks">
+        <span class="tab-icon">📈</span>
+        <span>Stocks</span>
+      </button>
+      <button class="tab-btn" data-tab="luxury">
+        <span class="tab-icon">💎</span>
+        <span>Luxury</span>
+      </button>
+      <button class="tab-btn" data-tab="profile">
+        <span class="tab-icon">👤</span>
+        <span>Profile</span>
+      </button>
+    </div>
+
+    <div class="content-card">
+      <!-- BUSINESS -->
+      <div class="section active" id="businessSection">
+        <div class="section-title">
+          <span>Бизнесы</span>
+          <span class="pill" id="bizIncomeChip">0 $/hr</span>
+        </div>
+        <div class="section-sub">
+          Покупай компании, чтобы получать пассивный доход.
+        </div>
+
+        <div class="biz-list" id="businessList"></div>
+      </div>
+
+      <!-- STOCKS -->
+      <div class="section" id="stocksSection">
+        <div class="section-title">
+          <span>Инвестиции</span>
+          <span class="pill" id="portfolioChip">Портфель: $0</span>
+        </div>
+        <div class="section-sub">
+          Играй на рынке: покупай и продавай акции с динамическими ценами.
+        </div>
+
+        <div class="card-row">
+          <div class="card-row-main">
+            <div class="label-main">Мой портфель</div>
+            <div class="label-sub">
+              Текущая стоимость:
+              <span id="portfolioValue">$0</span>
+            </div>
+            <div class="label-sub">
+              Прибыль:
+              <span id="portfolioPL" class="pill">0 (0%)</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="stock-list" id="stockList"></div>
+      </div>
+
+      <!-- LUXURY -->
+      <div class="section" id="luxurySection">
+        <div class="section-title">
+          <span>Роскошь</span>
+          <span class="pill" id="luxOwnedChip">0 предметов</span>
+        </div>
+        <div class="section-sub">
+          Покупай статусные вещи и поднимай свой уровень.
+        </div>
+
+        <div class="lux-list" id="luxList"></div>
+      </div>
+
+      <!-- PROFILE -->
+      <div class="section" id="profileSection">
+        <div class="section-title">
+          <span>Профиль</span>
+          <span class="tag-pill">
+            Уровень:
+            <span id="profileLevel">Rookie</span>
+          </span>
+        </div>
+
+        <div class="status-row">
+          <div class="status-label">Общее состояние</div>
+          <div class="status-value" id="profileNetWorth">$0</div>
+        </div>
+
+        <div class="grid-2" style="margin-bottom: 4px;">
+          <div class="stat-card">
+            <div class="stat-label">Баланс</div>
+            <div class="stat-value" id="profileBalance">$0</div>
+            <div class="stat-chip">Наличные</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Бизнесы</div>
+            <div class="stat-value" id="profileBiz">$0</div>
+            <div class="stat-chip">Рыночная стоимость</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Акции</div>
+            <div class="stat-value" id="profileStocks">$0</div>
+            <div class="stat-chip">Портфель</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Роскошь</div>
+            <div class="stat-value" id="profileLux">$0</div>
+            <div class="stat-chip">Сумма покупок</div>
+          </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="grid-2">
+          <div class="stat-card">
+            <div class="stat-label">Всего заработано</div>
+            <div class="stat-value" id="profileEarned">$0</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Всего потрачено</div>
+            <div class="stat-value" id="profileSpent">$0</div>
+          </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="section-title" style="margin-top: 4px;">
+          <span>Достижения</span>
+        </div>
+        <div class="ach-list" id="achList"></div>
+      </div>
+    </div>
+
+    <div class="footer">Прогресс сохраняется локально в браузере.</div>
+  </div>
+
+  <script>
+    // ---------- YANDEX GAMES SDK ----------
+    // Минимальная инициализация SDK + сигнал о готовности игры.
+    // По документации нужно вызвать LoadingAPI.ready(), когда игра полностью загружена.[web:186][web:189][web:195]
+    let ysdk = null;
+    if (typeof YaGames !== "undefined") {
+      YaGames.init()
+        .then((sdk) => {
+          ysdk = sdk;
+          if (ysdk.features && ysdk.features.LoadingAPI) {
+            ysdk.features.LoadingAPI.ready();
+          }
+        })
+        .catch(() => {
+          // офлайн / локальный запуск — просто игнорируем
+        });
+    }
+
+    // ---------- GAME STATE ----------
+    let money = 0;
+    let clickPower = 1000000000000000;
+    let incomePerSec = 0;
+    let totalEarned = 0;
+    let totalSpent = 0;
+    let totalClicks = 0;
+
+    const businesses = [
+      {
+        id: "larek",
+        name: "Ларёк у дома",
+        cost: 50,
+        baseIncome: 1,
+        owned: 0,
+        multiplier: 1,
+        tag: "Street",
+      },
+      {
+        id: "cafe",
+        name: "Кофейня",
+        cost: 300,
+        baseIncome: 5,
+        owned: 0,
+        multiplier: 1,
+        tag: "Food",
+      },
+      {
+        id: "office",
+        name: "IT‑офис",
+        cost: 1500,
+        baseIncome: 25,
+        owned: 0,
+        multiplier: 1,
+        tag: "Tech",
+      },
+      {
+        id: "factory",
+        name: "Завод",
+        cost: 8000,
+        baseIncome: 120,
+        owned: 0,
+        multiplier: 1,
+        tag: "Industry",
+      },
+      {
+        id: "bank",
+        name: "Банк",
+        cost: 50000,
+        baseIncome: 800,
+        owned: 0,
+        multiplier: 1,
+        tag: "Finance",
+      },
+      {
+        id: "casino",
+        name: "Казино",
+        cost: 250000,
+        baseIncome: 3500,
+        owned: 0,
+        multiplier: 1,
+        tag: "Risk",
+      },
+      {
+        id: "oil",
+        name: "Нефтяная компания",
+        cost: 1000000,
+        baseIncome: 15000,
+        owned: 0,
+        multiplier: 1,
+        tag: "Energy",
+      },
+      {
+        id: "space",
+        name: "Космический стартап",
+        cost: 5000000,
+        baseIncome: 70000,
+        owned: 0,
+        multiplier: 1,
+        tag: "Space",
+      },
+    ];
+
+    const stocks = [
+      {
+        id: "tech",
+        name: "TECHCO",
+        price: 100,
+        baseTrend: 0.02,
+        owned: 0,
+        avgPrice: 0,
+      },
+      {
+        id: "food",
+        name: "FOODINC",
+        price: 45,
+        baseTrend: 0.01,
+        owned: 0,
+        avgPrice: 0,
+      },
+      {
+        id: "crypto",
+        name: "CRYPTOX",
+        price: 500,
+        baseTrend: 0.05,
+        owned: 0,
+        avgPrice: 0,
+      },
+      {
+        id: "green",
+        name: "GREENEN",
+        price: 200,
+        baseTrend: 0.03,
+        owned: 0,
+        avgPrice: 0,
+      },
+      {
+        id: "ai",
+        name: "AILABS",
+        price: 800,
+        baseTrend: 0.04,
+        owned: 0,
+        avgPrice: 0,
+      },
+      {
+        id: "moon",
+        name: "MOONCOIN",
+        price: 50,
+        baseTrend: 0.07,
+        owned: 0,
+        avgPrice: 0,
+      },
+    ];
+
+    const luxuries = [
+      { id: "bike", name: "Велосипед", price: 500, owned: false, cat: "Транспорт" },
+      { id: "car", name: "Подержанное авто", price: 5000, owned: false, cat: "Транспорт" },
+      { id: "sportcar", name: "Спорткар", price: 80000, owned: false, cat: "Транспорт" },
+      { id: "supercar", name: "Суперкар", price: 500000, owned: false, cat: "Транспорт" },
+      { id: "yacht", name: "Яхта", price: 3000000, owned: false, cat: "Транспорт" },
+      { id: "apartment", name: "Квартира", price: 30000, owned: false, cat: "Недвижимость" },
+      { id: "villa", name: "Вилла", price: 300000, owned: false, cat: "Недвижимость" },
+      { id: "penthouse", name: "Пентхаус", price: 2000000, owned: false, cat: "Недвижимость" },
+      { id: "sky", name: "Небоскрёб", price: 20000000, owned: false, cat: "Недвижимость" },
+      { id: "island", name: "Остров", price: 5000000, owned: false, cat: "Острова" },
+      { id: "trop", name: "Тропический остров", price: 50000000, owned: false, cat: "Острова" },
+      { id: "country", name: "Микро‑государство", price: 500000000, owned: false, cat: "Острова" },
+    ];
+
+    const achievements = [
+      { id: "first_click", name: "Первый шаг", desc: "Сделай первый клик", done: false },
+      { id: "first_biz", name: "Первый бизнес", desc: "Купи любой бизнес", done: false },
+      { id: "investor", name: "Инвестор", desc: "Купи любую акцию", done: false },
+      { id: "rich_10k", name: "Начинающий богач", desc: "Заработай 10 000$", done: false },
+      { id: "rich_1m", name: "Миллионер", desc: "Заработай 1 000 000$", done: false },
+      { id: "car_owner", name: "Автоколлекционер", desc: "Купи любой автомобиль", done: false },
+      { id: "island_owner", name: "Островитянин", desc: "Купи остров", done: false },
+      { id: "tycoon", name: "Тайкун", desc: "Владеешь всеми бизнесами", done: false },
+    ];
+
+    // ---------- DOM ----------
+    const balanceEl = document.getElementById("balance");
+    const netWorthEl = document.getElementById("netWorth");
+    const incomeSecEl = document.getElementById("incomePerSec");
+    const incomeHourEl = document.getElementById("incomePerHour");
+    const workBtn = document.getElementById("workBtn");
+    const statusLabelEl = document.getElementById("statusLabel");
+    const bizIncomeChip = document.getElementById("bizIncomeChip");
+    const businessListEl = document.getElementById("businessList");
+    const stockListEl = document.getElementById("stockList");
+    const luxListEl = document.getElementById("luxList");
+    const luxOwnedChip = document.getElementById("luxOwnedChip");
+    const portfolioChip = document.getElementById("portfolioChip");
+    const portfolioValueEl = document.getElementById("portfolioValue");
+    const portfolioPLEl = document.getElementById("portfolioPL");
+    const profileLevelEl = document.getElementById("profileLevel");
+    const profileNetWorthEl = document.getElementById("profileNetWorth");
+    const profileBalanceEl = document.getElementById("profileBalance");
+    const profileBizEl = document.getElementById("profileBiz");
+    const profileStocksEl = document.getElementById("profileStocks");
+    const profileLuxEl = document.getElementById("profileLux");
+    const profileEarnedEl = document.getElementById("profileEarned");
+    const profileSpentEl = document.getElementById("profileSpent");
+    const achListEl = document.getElementById("achList");
+
+    const tabButtons = document.querySelectorAll(".tab-btn");
+    const sections = {
+      business: document.getElementById("businessSection"),
+      stocks: document.getElementById("stocksSection"),
+      luxury: document.getElementById("luxurySection"),
+      profile: document.getElementById("profileSection"),
+    };
+
+    // ---------- AUDIO (простые звуки через Web Audio) ----------
+    let audioCtx = null;
+    function playClickSound(freq = 440, duration = 0.05, gain = 0.08) {
+      try {
+        if (!audioCtx) {
+          const AC = window.AudioContext || window.webkitAudioContext;
+          audioCtx = new AC();
+        }
+        const osc = audioCtx.createOscillator();
+        const g = audioCtx.createGain();
+        osc.type = "sine";
+        osc.frequency.value = freq;
+        g.gain.value = gain;
+        osc.connect(g);
+        g.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + duration);
+      } catch (e) {
+        // если браузер не дал звук — просто молчим
+      }
+    }
+
+    // ---------- HELPERS ----------
+    function fmt(n) {
+      const v = Math.floor(Math.abs(n));
+      if (v >= 1_000_000_000) return (n / 1_000_000_000).toFixed(1) + "B";
+      if (v >= 1_000_000) return (n / 1_000_000).toFixed(1) + "M";
+      if (v >= 1_000) return (n / 1_000).toFixed(1) + "K";
+      return Math.floor(n).toString();
+    }
+
+    function fmtMoney(n) {
+      const sign = n < 0 ? "-" : "";
+      return sign + "$" + fmt(Math.abs(n));
+    }
+
+    function getStatusByNetWorth(nw) {
+      if (nw >= 100_000_000) return "Billionaire";
+      if (nw >= 5_000_000) return "Tycoon";
+      if (nw >= 1_000_000) return "Millionaire";
+      if (nw >= 100_000) return "Rich";
+      if (nw >= 10_000) return "Wealthy";
+      if (nw >= 1_000) return "Middle Class";
+      return "Rookie";
+    }
+
+    function calcBizIncomePerSec() {
+      return businesses.reduce(
+        (sum, b) => sum + b.owned * b.baseIncome * b.multiplier,
+        0
+      );
+    }
+
+    function calcPortfolioValue() {
+      return stocks.reduce((sum, s) => sum + s.owned * s.price, 0);
+    }
+
+    function calcPortfolioCost() {
+      return stocks.reduce((sum, s) => sum + s.owned * s.avgPrice, 0);
+    }
+
+    function calcLuxValue() {
+      return luxuries.reduce((sum, l) => sum + (l.owned ? l.price : 0), 0);
+    }
+
+    function calcBizValue() {
+      return businesses.reduce(
+        (sum, b) => sum + b.owned * b.cost * 0.7,
+        0
+      );
+    }
+
+    function calcNetWorth() {
+      const bv = calcBizValue();
+      const sv = calcPortfolioValue();
+      const lv = calcLuxValue();
+      return money + bv + sv + lv;
+    }
+
+    // ---------- RENDER ----------
+    function renderBusinesses() {
+      businessListEl.innerHTML = "";
+      businesses.forEach((b) => {
+        const row = document.createElement("div");
+        row.className = "card-row";
+
+        const main = document.createElement("div");
+        main.className = "card-row-main";
+
+        const label = document.createElement("div");
+        label.className = "label-main";
+        label.textContent = b.name + (b.owned > 0 ? ` ×${b.owned}` : "");
+
+        const sub = document.createElement("div");
+        sub.className = "label-sub";
+        sub.textContent =
+          "+" + fmt(b.baseIncome * b.multiplier) + " $/sec / шт.";
+
+        const tag = document.createElement("div");
+        tag.className = "label-tag";
+        tag.textContent = "Цена: " + fmtMoney(b.cost);
+
+        const chip = document.createElement("div");
+        chip.className = "chip";
+        chip.textContent = b.tag;
+
+        main.appendChild(label);
+        main.appendChild(sub);
+        main.appendChild(tag);
+        main.appendChild(chip);
+
+        const actions = document.createElement("div");
+        actions.className = "card-row-actions";
+
+        const incomePerBiz =
+          b.owned * b.baseIncome * b.multiplier * 60 * 60;
+        const info = document.createElement("div");
+        info.className = "stat-chip";
+        info.textContent =
+          "Доход: " + fmt(incomePerBiz || 0) + " $/hr";
+
+        const btn = document.createElement("button");
+        btn.className = "small-btn primary";
+        btn.textContent = "Купить";
+
+        if (money < b.cost) {
+          btn.classList.add("disabled");
+        }
+
+        btn.addEventListener("click", () => {
+          if (money < b.cost) return;
+          money -= b.cost;
+          totalSpent += b.cost;
+          b.owned += 1;
+          // лёгкий рост стоимости и дохода
+          b.cost = Math.round(b.cost * 1.3 + 1);
+          incomePerSec = calcBizIncomePerSec();
+          playClickSound(220, 0.06, 0.1);
+          checkAchievements();
+          saveState();
+          updateUI();
+        });
+
+        actions.appendChild(info);
+        actions.appendChild(btn);
+
+        row.appendChild(main);
+        row.appendChild(actions);
+        businessListEl.appendChild(row);
+      });
+    }
+
+    function renderStocks() {
+      stockListEl.innerHTML = "";
+      stocks.forEach((s) => {
+        const row = document.createElement("div");
+        row.className = "card-row";
+
+        const main = document.createElement("div");
+        main.className = "card-row-main";
+
+        const label = document.createElement("div");
+        label.className = "label-main";
+        label.textContent = s.name + (s.owned > 0 ? ` ×${s.owned}` : "");
+
+        const sub = document.createElement("div");
+        sub.className = "label-sub";
+        sub.textContent = "Цена: " + fmtMoney(s.price);
+
+        const tag = document.createElement("div");
+        tag.className = "label-tag";
+        tag.textContent =
+          s.owned > 0
+            ? "Средняя цена: " + fmtMoney(s.avgPrice)
+            : "Нет позиций";
+
+        main.appendChild(label);
+        main.appendChild(sub);
+        main.appendChild(tag);
+
+        const actions = document.createElement("div");
+        actions.className = "card-row-actions";
+
+        const value = s.owned * s.price;
+        const cost = s.owned * s.avgPrice;
+        let pl = value - cost;
+        let plPercent = cost > 0 ? (pl / cost) * 100 : 0;
+        if (!isFinite(plPercent)) plPercent = 0;
+
+        const pill = document.createElement("div");
+        pill.className =
+          "pill " +
+          (pl > 0 ? "positive" : pl < 0 ? "negative" : "");
+        pill.textContent =
+          (pl > 0 ? "+" : "") +
+          fmt(pl) +
+          " (" +
+          plPercent.toFixed(1) +
+          "%)";
+
+        const btnBuy = document.createElement("button");
+        btnBuy.className = "small-btn outline";
+        btnBuy.textContent = "Купить";
+
+        const btnSell = document.createElement("button");
+        btnSell.className = "small-btn outline";
+        btnSell.textContent = "Продать";
+
+        if (money < s.price) {
+          btnBuy.classList.add("disabled");
+        }
+
+        if (s.owned <= 0) {
+          btnSell.classList.add("disabled");
+        }
+
+        btnBuy.addEventListener("click", () => {
+          if (money < s.price) return;
+          money -= s.price;
+          totalSpent += s.price;
+          const totalCost = s.avgPrice * s.owned + s.price;
+          s.owned += 1;
+          s.avgPrice = totalCost / s.owned;
+          playClickSound(260, 0.06, 0.08);
+          checkAchievements();
+          saveState();
+          updateUI();
+        });
+
+        btnSell.addEventListener("click", () => {
+          if (s.owned <= 0) return;
+          s.owned -= 1;
+          money += s.price;
+          totalEarned += s.price;
+          if (s.owned === 0) s.avgPrice = 0;
+          playClickSound(180, 0.06, 0.08);
+          saveState();
+          updateUI();
+        });
+
+        actions.appendChild(pill);
+        const btnRow = document.createElement("div");
+        btnRow.style.display = "flex";
+        btnRow.style.gap = "4px";
+        btnRow.appendChild(btnBuy);
+        btnRow.appendChild(btnSell);
+        actions.appendChild(btnRow);
+
+        row.appendChild(main);
+        row.appendChild(actions);
+        stockListEl.appendChild(row);
+      });
+    }
+
+    function renderLuxuries() {
+      luxListEl.innerHTML = "";
+      let ownedCount = 0;
+
+      luxuries.forEach((l) => {
+        const row = document.createElement("div");
+        row.className = "card-row";
+
+        const main = document.createElement("div");
+        main.className = "card-row-main";
+
+        const label = document.createElement("div");
+        label.className = "label-main";
+        label.textContent = l.name;
+
+        const sub = document.createElement("div");
+        sub.className = "label-sub";
+        sub.textContent = l.cat;
+
+        const tag = document.createElement("div");
+        tag.className = "label-tag";
+        tag.textContent = "Цена: " + fmtMoney(l.price);
+
+        main.appendChild(label);
+        main.appendChild(sub);
+        main.appendChild(tag);
+
+        const actions = document.createElement("div");
+        actions.className = "card-row-actions";
+
+        const status = document.createElement("div");
+        status.className = "stat-chip";
+        status.textContent = l.owned ? "Приобретено" : "Не куплено";
+
+        const btn = document.createElement("button");
+        btn.className = "small-btn primary";
+        btn.textContent = l.owned ? "✓" : "Купить";
+
+        if (l.owned) {
+          btn.classList.add("disabled");
+        } else if (money < l.price) {
+          btn.classList.add("disabled");
+        }
+
+        btn.addEventListener("click", () => {
+          if (l.owned || money < l.price) return;
+          money -= l.price;
+          totalSpent += l.price;
+          l.owned = true;
+          playClickSound(520, 0.08, 0.12);
+          checkAchievements();
+          saveState();
+          updateUI();
+        });
+
+        actions.appendChild(status);
+        actions.appendChild(btn);
+
+        row.appendChild(main);
+        row.appendChild(actions);
+        luxListEl.appendChild(row);
+
+        if (l.owned) ownedCount++;
+      });
+
+      luxOwnedChip.textContent = ownedCount + " предметов";
+    }
+
+    function renderAchievements() {
+      achListEl.innerHTML = "";
+      achievements.forEach((a) => {
+        const row = document.createElement("div");
+        row.className = "ach-item";
+
+        const main = document.createElement("div");
+        main.className = "ach-main";
+
+        const name = document.createElement("div");
+        name.className = "ach-name";
+        name.textContent = a.name;
+
+        const desc = document.createElement("div");
+        desc.className = "ach-desc";
+        desc.textContent = a.desc;
+
+        main.appendChild(name);
+        main.appendChild(desc);
+
+        const badge = document.createElement("div");
+        badge.className = "ach-badge";
+        badge.textContent = a.done ? "Получено" : "Не получено";
+        if (a.done) badge.classList.add("done");
+
+        row.appendChild(main);
+        row.appendChild(badge);
+        achListEl.appendChild(row);
+      });
+    }
+
+    function updateProfile() {
+      const bv = calcBizValue();
+      const sv = calcPortfolioValue();
+      const lv = calcLuxValue();
+      const nw = calcNetWorth();
+
+      profileBalanceEl.textContent = fmtMoney(money);
+      profileBizEl.textContent = fmtMoney(bv);
+      profileStocksEl.textContent = fmtMoney(sv);
+      profileLuxEl.textContent = fmtMoney(lv);
+      profileNetWorthEl.textContent = fmtMoney(nw);
+      profileEarnedEl.textContent = fmtMoney(totalEarned);
+      profileSpentEl.textContent = fmtMoney(totalSpent);
+
+      const status = getStatusByNetWorth(nw);
+      statusLabelEl.textContent = status;
+      profileLevelEl.textContent = status;
+    }
+
+    function updateTopBar() {
+      const nw = calcNetWorth();
+      balanceEl.textContent = fmtMoney(money);
+      netWorthEl.textContent = fmtMoney(nw);
+      incomePerSec = calcBizIncomePerSec();
+      incomeSecEl.textContent = fmt(incomePerSec) + " $/sec";
+      incomeHourEl.textContent = fmt(incomePerSec * 3600) + " $/hr";
+      bizIncomeChip.textContent = fmt(incomePerSec * 3600) + " $/hr";
+    }
+
+    function updateStocksSummary() {
+      const value = calcPortfolioValue();
+      const cost = calcPortfolioCost();
+      const pl = value - cost;
+      const plPercent = cost > 0 ? (pl / cost) * 100 : 0;
+
+      portfolioValueEl.textContent = fmtMoney(value);
+      portfolioChip.textContent = "Портфель: " + fmtMoney(value);
+
+      portfolioPLEl.textContent =
+        (pl > 0 ? "+" : "") +
+        fmt(pl) +
+        " (" +
+        (isFinite(plPercent) ? plPercent.toFixed(1) : "0.0") +
+        "%)";
+      portfolioPLEl.className = "pill " + (pl > 0 ? "positive" : pl < 0 ? "negative" : "");
+    }
+
+    function updateUI() {
+      updateTopBar();
+      renderBusinesses();
+      renderStocks();
+      renderLuxuries();
+      renderAchievements();
+      updateProfile();
+      updateStocksSummary();
+    }
+
+    // ---------- ACHIEVEMENTS ----------
+    function checkAchievements() {
+      if (totalClicks >= 1) {
+        achievements.find((a) => a.id === "first_click").done = true;
+      }
+      if (businesses.some((b) => b.owned > 0)) {
+        achievements.find((a) => a.id === "first_biz").done = true;
+      }
+      if (stocks.some((s) => s.owned > 0)) {
+        achievements.find((a) => a.id === "investor").done = true;
+      }
+      if (totalEarned >= 10_000) {
+        achievements.find((a) => a.id === "rich_10k").done = true;
+      }
+      if (totalEarned >= 1_000_000) {
+        achievements.find((a) => a.id === "rich_1m").done = true;
+      }
+      const carIds = ["car", "sportcar", "supercar"];
+      if (luxuries.some((l) => carIds.includes(l.id) && l.owned)) {
+        achievements.find((a) => a.id === "car_owner").done = true;
+      }
+      const islandIds = ["island", "trop", "country"];
+      if (luxuries.some((l) => islandIds.includes(l.id) && l.owned)) {
+        achievements.find((a) => a.id === "island_owner").done = true;
+      }
+      if (businesses.every((b) => b.owned > 0)) {
+        achievements.find((a) => a.id === "tycoon").done = true;
+      }
+    }
+
+    // ---------- SAVE / LOAD ----------
+    const SAVE_KEY = "business_empire_html_save_v1";
+
+    function saveState() {
+      const data = {
+        money,
+        clickPower,
+        totalEarned,
+        totalSpent,
+        totalClicks,
+        businesses,
+        stocks,
+        luxuries,
+        achievements,
+      };
+      try {
+        localStorage.setItem(SAVE_KEY, JSON.stringify(data));
+      } catch (e) {
+        // если localStorage недоступен — просто пропускаем
+      }
+    }
+
+    function loadState() {
+      try {
+        const raw = localStorage.getItem(SAVE_KEY);
+        if (!raw) return;
+        const data = JSON.parse(raw);
+        money = data.money ?? money;
+        clickPower = data.clickPower ?? clickPower;
+        totalEarned = data.totalEarned ?? totalEarned;
+        totalSpent = data.totalSpent ?? totalSpent;
+        totalClicks = data.totalClicks ?? totalClicks;
+
+        if (Array.isArray(data.businesses)) {
+          data.businesses.forEach((bData) => {
+            const b = businesses.find((x) => x.id === bData.id);
+            if (!b) return;
+            b.cost = bData.cost ?? b.cost;
+            b.baseIncome = bData.baseIncome ?? b.baseIncome;
+            b.owned = bData.owned ?? b.owned;
+            b.multiplier = bData.multiplier ?? b.multiplier;
+          });
+        }
+
+        if (Array.isArray(data.stocks)) {
+          data.stocks.forEach((sData) => {
+            const s = stocks.find((x) => x.id === sData.id);
+            if (!s) return;
+            s.price = sData.price ?? s.price;
+            s.owned = sData.owned ?? s.owned;
+            s.avgPrice = sData.avgPrice ?? s.avgPrice;
+          });
+        }
+
+        if (Array.isArray(data.luxuries)) {
+          data.luxuries.forEach((lData) => {
+            const l = luxuries.find((x) => x.id === lData.id);
+            if (!l) return;
+            l.owned = lData.owned ?? l.owned;
+          });
+        }
+
+        if (Array.isArray(data.achievements)) {
+          data.achievements.forEach((aData) => {
+            const a = achievements.find((x) => x.id === aData.id);
+            if (!a) return;
+            a.done = aData.done ?? a.done;
+          });
+        }
+      } catch (e) {
+        console.error("Save load error", e);
+      }
+    }
+
+    // ---------- LOOP ----------
+    function tickIncome() {
+      const inc = calcBizIncomePerSec();
+      if (inc > 0) {
+        money += inc;
+        totalEarned += inc;
+        saveState();
+        updateUI();
+      }
+    }
+
+    function updateStocksPrices() {
+      stocks.forEach((s) => {
+        const rnd = (Math.random() - 0.5) * 0.12; // -6..+6%
+        const trend = s.baseTrend * 0.5;
+        const factor = 1 + rnd + trend;
+        s.price = Math.max(5, s.price * factor);
+      });
+      saveState();
+      updateUI();
+    }
+
+    // ---------- EVENTS ----------
+    workBtn.addEventListener("click", () => {
+      money += clickPower;
+      totalEarned += clickPower;
+      totalClicks += 1;
+      playClickSound(440, 0.05, 0.1);
+      checkAchievements();
+      saveState();
+      updateUI();
+    });
+
+    tabButtons.forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const tab = btn.dataset.tab;
+        tabButtons.forEach((b) => b.classList.remove("active"));
+        btn.classList.add("active");
+        Object.keys(sections).forEach((key) => {
+          sections[key].classList.toggle("active", key === tab);
+        });
+      });
+    });
+
+    // ---------- INIT ----------
+    loadState();
+    updateUI();
+
+    // каждые 1 сек — пассивный доход
+    setInterval(tickIncome, 1000);
+    // каждые 5 сек — движение акций
+    setInterval(updateStocksPrices, 5000);
+  </script>
+</body>
+</html>
